@@ -2,8 +2,6 @@ const {model, Schema} = require('mongoose')
 const { user } = require('./schemas')
 const timeStamp = {timestamps: true}
 
-const userSchema = new Schema(user, timeStamp)
-
-const userModel = model('User', userSchema);
+const userModel = model('User', new Schema(user, timeStamp));
 
 module.exports = {userModel}
