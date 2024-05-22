@@ -1,3 +1,4 @@
+const session = require('express-session')
 const { response } = require("express");
 const { userModel } = require("../database_files/models");
 const bcrypt = require('bcrypt')
@@ -29,8 +30,8 @@ const createUser = async (req, res) => {
 
 //READS USERMODEL TO ALLOW LOGIN
 const signIn = (req,res) => {
-    
+    res.send(req.session)
 }
 
 
-module.exports = { createUser, landingPage }
+module.exports = { createUser, landingPage, signIn }
