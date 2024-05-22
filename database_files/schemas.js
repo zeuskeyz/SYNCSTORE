@@ -3,9 +3,10 @@ const user = {
 
     username: { type: String, required: true, lowercase: true, unique: true },
     email: { type: String, required: true, lowercase: true, unique: true },
-    shop: { type: String, required: true, lowercase: true },
+    shop: { type: String, required: true, uppercase: true },
     type: { type: String, required: true, lowercase: true },
-    password: { type: String, required: true }, 
+    squads: {type:Array, default:['shop' ]},
+    password: { type: String, required: true },
 
 } 
 
