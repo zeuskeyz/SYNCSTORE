@@ -1,7 +1,7 @@
 const session = require('express-session')
 const session_store = require('connect-mongodb-session')(session);
 
-const timeOut = 1000*60
+const timeOut = 1000*60*5;
 
 const store = new session_store(
   {

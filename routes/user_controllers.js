@@ -48,7 +48,7 @@ const signIn = async (req, res) => {
     } catch (error) { res.send(error.message) } //FEEDBACK IF USER LOGIN PROCESS FAILS TO START
 }
 
-// ADDS A USER TOO SQUAD 
+// ADDS A SQUAD TO USER 
 const groupAdd = async (req, res) => {
     try {
         if (req.session.user) {
@@ -56,7 +56,8 @@ const groupAdd = async (req, res) => {
             if (req.session.user.type === 'admin') {
 
                 const member = await userModel.findById({ _id: req.params.id })
-                if (req.member?.shop === req.session.user.shop) {
+                console.log(member.shop)
+                if (member?.shop === req.session.user.shop) {
 
                     member.squads?.push(req.body.squad)
                     await member.save()
@@ -71,7 +72,7 @@ const groupAdd = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
-// REMOVES A USER TOO SQUAD 
+// REMOVES A SQUAD FROM USER 
 const groupRemove = async (req, res) => {
     try {
         if (req.session.user) {
@@ -79,7 +80,7 @@ const groupRemove = async (req, res) => {
             if (req.session.user.type === 'admin') {
 
                 const member = await userModel.findById({ _id: req.params.id })
-                if (req.member?.shop === req.session.user.shop) {
+                if (member?.shop === req.session.user.shop) {
 
                     member.squads?.splice((member.squads?.indexOf(req.body.squad)), 1)
                     await member.save()
