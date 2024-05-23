@@ -48,14 +48,59 @@ const signIn = async (req, res) => {
     } catch (error) { res.send(error.message) } //FEEDBACK IF USER LOGIN PROCESS FAILS TO START
 }
 
-
-const logOut = (req, res) => {
+// ADDS A USER TOO SQUAD 
+const groupAdd = async (req, res) => {
     try {
+        if (req.session.user) {
 
-        req.session.destroy()
-        res.send('logout successfull')
-        
-    } catch (error) { res.send(error.message)}
+            if (req.session.user.type === 'admin') {
+
+                const member = await userModel.findById({ _id: req.params.id })
+                if (req.member?.shop === req.session.user.shop) {
+
+                    member.squads?.push(req.body.squad)
+                    await member.save()
+                    res.send(`${member.username} added to ${req.body.squad} squad`)
+
+                } else { res.send("user from different shop") }
+
+            } else { res.send('login as admin first') }
+
+        } else { res.send('session expired: login again') }
+
+    } catch (error) { res.send(error.message) }
 }
 
-module.exports = { createUser, landingPage, signIn, logOut }
+// REMOVES A USER TOO SQUAD 
+const groupRemove = async (req, res) => {
+    try {
+        if (req.session.user) {
+            
+            if (req.session.user.type === 'admin') {
+
+                const member = await userModel.findById({ _id: req.params.id })
+                if (req.member?.shop === req.session.user.shop) {
+
+                    member.squads?.splice((member.squads?.indexOf(req.body.squad)), 1)
+                    await member.save()
+                    res.send(`${member.username} removed from ${req.body.squad} squad`)
+
+                } else { res.send('user from different shop') }
+
+            } else { res.send('login as admin first') }
+        } else { res.send('session expired: login again') }
+
+    } catch (error) { res.send(error.message) }
+}
+
+//FACILITATES USER LOGOUT
+const logOut = async (req, res) => {
+    try {
+
+        await req.session.destroy() //DESTROYS THE USER SESSION
+        res.send('logout successfull')
+
+    } catch (error) { res.send(error.message) }
+}
+
+module.exports = { createUser, landingPage, signIn, logOut, groupAdd, groupRemove }
