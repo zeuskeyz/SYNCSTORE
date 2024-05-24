@@ -29,7 +29,7 @@ const task = {
 //SQUAD SCHEMA
 const squad = {
 
-    name: { type: String, lowercase: true, unique: true, required: true },
+    name: { type: String, lowercase: true, required: true },
     shop: { type: String, required: true, uppercase: true },
 }
 

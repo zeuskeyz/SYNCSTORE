@@ -130,7 +130,7 @@ const closeTask = async (req, res) => {
             if (closed.shop === shop && closed.picklist?.includes(username) && closed.status === 'in progress') {
 
                 closed.checkout.push(username)
-                closed.comments.push({ username: comments })
+                closed.comments.push({ [username]: comments })
                 closed.status = 'closed'
 
                 await closed.save()

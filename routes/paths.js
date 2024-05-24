@@ -1,13 +1,14 @@
 const { Router } = require('express');
 const { createUser, landingPage, signIn, logOut, groupAdd, groupRemove } = require('./user_controllers');
 const { createAsk, openTasks, pickedTasks, closedTasks, pickTask, closeTask, openAsks, pickedAsks, closedAsks } = require('./task_controllers');
+const { createSquad, allSquads, deleteSquad } = require('./squad_controllers');
 const router = Router();
 
 //LANDING PAGE PATH
 router.get('/', landingPage) //LANDING PAGE PATH
 
 //USER PATHS
-router.post('/user-new', createUser) //USER CREATION PATH
+router.post('/new-user', createUser) //USER CREATION PATH
 router.post('/user-login', signIn) //USER LOGIN PATH
 router.get('/user-logout', logOut) //USER LOGOUT PATH 
 router.post('/add-squads/:id', groupAdd) //ADD SQUADS TO USER PROFILE
@@ -23,5 +24,10 @@ router.get('/asks-picked', pickedAsks) //PICKED ASKS PATH
 router.post('/close-task/:id', closeTask) //CLOSING TASKS PATH 
 router.get('/tasks-closed', closedTasks) //COMPLETED TASKS PATH 
 router.get('/asks-closed', closedAsks) //COMPLETED ASKS PATH 
+
+//SQUAD PATHS
+router.post('/new-squad', createSquad) //SQUAD CREATION PATH
+router.get('/all-squads', allSquads) //ALL SQUADS PATH
+router.post('/delete-squad/:id', deleteSquad) //DELETES A SQUAD
 
 module.exports = router;
