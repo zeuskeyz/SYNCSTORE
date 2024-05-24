@@ -1,28 +1,47 @@
 const session = require('express-session')
 const { taskModel } = require("../database_files/models")
 
-//CREATES NEW TASK --
-const newTask = async (req, res) => {
+//CREATES NEW REQUEST
+const createAsk = async (req, res) => {
     try {
 
         if (req.session.user) {
 
-            const newTask = new taskModel(req.body)
-            await newTask.save()
-            res.send(`successfully created task : ${newTask._id}`)
+            const createAsk = new taskModel(req.body)
+            await createAsk.save()
+            res.send(`successfully created task : ${createAsk._id}`)
 
         } else { res.send('login first!') }
 
     } catch (error) { error.message }
 }
 
-//RENDERS ALL OPEN TASKS --
+//RENDERS ALL OPEN REQUESTS
+const openAsks = async (req, res) => {
+    try {
+
+        if (req.session.user) {
+
+            const asksList = await taskModel.find({
+                $and: [
+                    { creator: req.session.user.username },
+                    { status: 'open' }
+                ]
+            })
+
+            res.send(asksList)
+
+        } else res.render('login first')
+
+    } catch (error) { res.send(error.message) }
+}
+
+//RENDERS ALL OPEN TASKS
 const openTasks = async (req, res) => {
     try {
 
         if (req.session.user) {
 
-            console.log(req.session.user.squads)
             const tasksList = await taskModel.find({
                 $and: [
                     { shop: req.session.user.shop },
@@ -59,7 +78,26 @@ const pickTask = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
-//RENDERS ALL TASKS IN PROGRESS
+//RENDERS ALL PICKED REQUESTS
+const pickedAsks = async (req, res) => {
+    try {
+
+        if (req.session.user) {
+
+            const asksList = await taskModel.find({
+                $and: [
+                    { creator: req.session.user.username },
+                    { status: 'in progress' }
+                ]
+            })
+            res.send(asksList)
+
+        } else res.render('login first')
+
+    } catch (error) { res.send(error.message) }
+}
+
+//RENDERS ALL PICKED TASKS
 const pickedTasks = async (req, res) => {
     try {
 
@@ -106,6 +144,26 @@ const closeTask = async (req, res) => {
 
 }
 
+//RENDERS ALL CLOSED REQUESTS
+const closedAsks = async (req, res) => {
+    try {
+
+        if (req.session.user) {
+
+            const asksList = await taskModel.find({
+                $and: [
+                    { creator: req.session.user.username },
+                    { status: 'closed' }
+                ]
+            })
+
+            res.send(asksList)
+
+        } else res.render('login first')
+
+    } catch (error) { res.send(error.message) }
+}
+
 //RENDERS ALL CLOSED TASKS
 const closedTasks = async (req, res) => {
     try {
@@ -128,7 +186,7 @@ const closedTasks = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
-module.exports = { newTask, openTasks, pickTask, pickedTasks, closeTask, closedTasks }
+module.exports = { createAsk, openAsks, openTasks, pickTask, pickedAsks, pickedTasks, closeTask, closedAsks, closedTasks }
 
 
 
