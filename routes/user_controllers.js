@@ -1,6 +1,6 @@
 const session = require('express-session')
-const { userModel } = require("../database_files/models");
 const bcrypt = require('bcrypt')
+const { userModel } = require("../database_files/models");
 
 //LANDING PAGE
 const landingPage = async (req, res) => {
