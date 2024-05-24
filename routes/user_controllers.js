@@ -56,10 +56,10 @@ const groupAdd = async (req, res) => {
             if (req.session.user.type === 'admin') {
 
                 const member = await userModel.findById({ _id: req.params.id })
-                console.log(member.shop)
+                
                 if (member?.shop === req.session.user.shop) {
 
-                    member.squads?.push(req.body.squad)
+                    !member.squads?.includes(req.body.squad) && member.squads?.push(req.body.squad)
                     await member.save()
                     res.send(`${member.username} added to ${req.body.squad} squad`)
 

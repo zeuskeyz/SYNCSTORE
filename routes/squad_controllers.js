@@ -43,14 +43,14 @@ const deleteSquad = async (req, res) => {
             if (deletedSquad.shop === req.session.user.shop) {
 
                 const squadUsers = await userModel.find({ squads: { $in: [deletedSquad.name] } })
-
+                
                 await squadUsers.forEach(user => {
                     user.squads?.splice((user.squads?.indexOf(deletedSquad.name), 1))
                     user.save()
                 })
 
                 await squadModel.findByIdAndDelete({ _id: req.params.id })
-
+                res.send(`${deletedSquad.name} squad deleted`)
             }
 
         } else res.send('not logged in')
