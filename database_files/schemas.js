@@ -12,7 +12,7 @@ const user = {
 
 //TASKS SCHEMA
 const task = {
-
+    
     name: { type: String, required: true, lowercase: true },
     summary: { type: String, required: true, lowercase: true },
     status: { type: String, lowercase: true, default: 'open' },

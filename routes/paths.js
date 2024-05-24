@@ -19,6 +19,6 @@ router.get('/tasks-open', openTasks) //OPEN TASKS PATH
 router.post('/pick-task/:id', pickTask) //PICKING TASKS PATH 
 router.get('/tasks-pending', pickedTasks) //PENDING TASKS PATH
 router.post('/close-task/:id', closeTask) //CLOSING TASKS PATH 
-router.post('/tasks-closed', closedTasks) //COMPLETED TASKS PATH 
+router.get('/tasks-closed', closedTasks) //COMPLETED TASKS PATH 
 
 module.exports = router;

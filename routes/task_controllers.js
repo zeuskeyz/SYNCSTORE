@@ -23,7 +23,12 @@ const openTasks = async (req, res) => {
         if (req.session.user) {
 
             console.log(req.session.user.squads)
-            const tasksList = await taskModel.find({ $and: [{ shop: req.session.user.shop }, { status: 'open' }, { audience: { $in: req.session.user.squads } }] })
+            const tasksList = await taskModel.find({
+                $and: [
+                    { shop: req.session.user.shop },
+                    { status: 'open' },
+                    { audience: { $in: req.session.user.squads } }]
+            })
             res.send(tasksList)
 
         } else { res.send('login first') }
@@ -36,12 +41,18 @@ const pickTask = async (req, res) => {
     try {
 
         if (req.session.user) {
+            const { shop, squads } = req.session.user
 
             const picked = await taskModel.findById({ _id: req.params.id })
-            picked?.picklist.push(req.session.user.username)
-            picked.status = 'in progress'
-            await picked.save()
-            res.send(`task added in your to-do list`)
+
+            if (picked.shop === shop && squads.includes(picked.audience) && picked.status === 'open') {
+
+                picked?.picklist.push(req.session.user.username)
+                picked.status = 'in progress'
+                await picked.save()
+                res.send(`task added in your to-do list`)
+
+            } else { res.send('task in wrong shop/audience/status') }
 
         } else { res.send('login first') }
 
@@ -54,7 +65,13 @@ const pickedTasks = async (req, res) => {
 
         if (req.session.user) {
 
-            const tasksList = await taskModel.find({ $and: [{ shop: req.session.user.shop }, { status: 'in progress' }, { audience: { $in: req.session.user.squads } }] })
+            const tasksList = await taskModel.find({
+                $and: [
+                    { shop: req.session.user.shop },//USER ONLY ACCESSESS TASKS UNDER THEIR SHOPS 
+                    { status: 'in progress' }, // ONLY TASKS WITH STATUS IN PROGRESS
+                    { audience: { $in: req.session.user.squads } } //USER ONLY ACCESS PENDING TASKS IN WHOSE AUDIENCE THEY BELONG
+                ]
+            })
             res.send(tasksList)
 
         } else { res.send('login first') }
@@ -67,16 +84,21 @@ const closeTask = async (req, res) => {
     try {
 
         if (req.session.user) {
-            const { comments } = req.body
-            const { username } = req.session.user
-            const closed = await taskModel.findById({ _id: req.params.id })
-            closed?.checkout.push(username)
-            closed?.comments.push({ username: comments })
-            closed.status = 'closed'
-            await closed.save()
-            res.send(`task closed`)
 
-            //issues ensure that the picklist has to have the userame of ther session user
+            const { comments } = req.body
+            const { username, shop } = req.session.user
+            const closed = await taskModel.findById({ _id: req.params.id })
+
+            if (closed.shop === shop && closed.picklist?.includes(username) && closed.status === 'in progress') {
+
+                closed.checkout.push(username)
+                closed.comments.push({ username: comments })
+                closed.status = 'closed'
+
+                await closed.save()
+                res.send(`task closed`)
+
+            } else { res.send('task in wrong shop/audience/status') }
 
         } else { res.send('login first') }
 
@@ -84,16 +106,22 @@ const closeTask = async (req, res) => {
 
 }
 
-//RENDERS ALL closed TASKS
+//RENDERS ALL CLOSED TASKS
 const closedTasks = async (req, res) => {
     try {
 
         if (req.session.user) {
 
-            const tasksList = await taskModel.find({ $and: [{ shop: req.session.user.shop }, { status: 'closed' }, { audience: { $in: req.session.user.squad } }] })
+            const tasksList = await taskModel.find({
+                $and: [
+                    { shop: req.session.user.shop }, //USER ONLY ACCESSESS TASKS UNDER THEIR SHOPS 
+                    { status: 'closed' }, // ONLY TASKES WITH STATUS CLOSED
+                    { checkout: { $in: [req.session.user.username] } } //USER ONLY ACCESS CLOSED TASKS THEY HAVE CLOSED
+                ]
+            })
+
             res.send(tasksList)
             //issues ensure that the checkout list has to have the userame of ther session user
-
 
         } else { res.send('login first') }
 
