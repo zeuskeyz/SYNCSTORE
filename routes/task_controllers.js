@@ -51,12 +51,10 @@ const openTasks = async (req, res) => {
                     { status: 'open' },
                     { audience: { $in: req.session.user.squads } }
                 ]
-            }) 
+            })
 
             res.send(tasksList)
-        }
-
-
+        } else { res.send ( {valid: false }) }
 
     } catch (error) { res.send(error.message) }
 }
