@@ -8,13 +8,13 @@ const routing = require('./routes/paths');
 
 const app = express();
 
-app.use(sessionData)
+app.use(cors({origin:'http://localhost:5173' ,credentials:true}))
 app.use(express.json())
-
-app.use('/syncstore', routing)
+app.use(express.urlencoded({extended:true}))
+app.use(sessionData)
+app.use('/', routing)
 
 app.listen(process.env.PORT,  () => {
     connectDB()
     console.log('SERVER STARTED')
 })
-

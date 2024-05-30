@@ -21,36 +21,42 @@ const openAsks = async (req, res) => {
     try {
 
         if (req.session.user) {
+            const { username } = req.session.user
 
             const asksList = await taskModel.find({
                 $and: [
-                    { creator: req.session.user.username },
+                    { creator: username },
                     { status: 'open' }
                 ]
             })
 
             res.send(asksList)
 
-        } else res.render('login first')
+        }
 
     } catch (error) { res.send(error.message) }
 }
 
 //RENDERS ALL OPEN TASKS
 const openTasks = async (req, res) => {
+    let tasksList = []
+
     try {
 
         if (req.session.user) {
+            tasksList = await taskModel.find({
 
-            const tasksList = await taskModel.find({
                 $and: [
                     { shop: req.session.user.shop },
                     { status: 'open' },
-                    { audience: { $in: req.session.user.squads } }]
-            })
-            res.send(tasksList)
+                    { audience: { $in: req.session.user.squads } }
+                ]
+            }) 
 
-        } else { res.send('login first') }
+            res.send(tasksList)
+        }
+
+
 
     } catch (error) { res.send(error.message) }
 }

@@ -3,7 +3,7 @@ const { squadModel, userModel } = require("../database_files/models")
 //CREATES A SQUAD
 const createSquad = async (req, res) => {
     try {
-        if (req.session.user && req.session.user.type === 'admin') {
+        if (req.session.user && req.session.user.role === 'admin') {
 
             const check = await squadModel.find({$and:[{ name: req.body.name }, { shop: req.body.shop }]}) // CHECKS IF A SIMILAR SQUAD EXISTS IN DB
 

@@ -28,9 +28,7 @@ const createUser = async (req, res) => {
 //READS USERMODEL TO ALLOW LOGIN
 const signIn = async (req, res) => {
     try {
-
         const exists = await userModel.findOne({ username: req.body.username }) //CHECKS IF USER EXISTS IN DB
-
         if (exists) {
 
             const loginAuth = await bcrypt.compare(req.body.password, exists.password) //VALIDATES USER PASSWORD
@@ -38,14 +36,14 @@ const signIn = async (req, res) => {
             if (loginAuth) {
 
                 delete exists._doc.password; delete exists._doc.createdAt; delete exists._doc.updatedAt; //REMOVES THE PASSWORD FROM USER OBJECT
-                req.session.user = { ...exists._doc, validated: true } //MODIFIES THE SESSION OBJECT
-                res.send(req.session)
+                req.session.user = exists._doc; req.session.valid = true; //MODIFIES THE SESSION OBJECT
+                res.send({ user: req.session.user, valid:req.session.valid, note: `Welcome back ${req.body.username}` })
 
-            } else res.send('invalid password') //FEEDBACK IF PASSWORD IS INVALID
+            } else res.send({ note: 'invalid password' }) //FEEDBACK IF PASSWORD IS INVALID
 
-        } else { res.send('invalid username/email') } //FRESPONSE IF USERNAME IS INVALID
+        } else { res.send({ note: 'invalid username/email' }) } //FRESPONSE IF USERNAME IS INVALID
 
-    } catch (error) { res.send(error.message) } //FEEDBACK IF USER LOGIN PROCESS FAILS TO START
+    } catch (error) { res.send({ note: error }); console.log(error) } //FEEDBACK IF USER LOGIN PROCESS FAILS TO START
 }
 
 // ADDS A SQUAD TO USER 
@@ -53,10 +51,10 @@ const groupAdd = async (req, res) => {
     try {
         if (req.session.user) {
 
-            if (req.session.user.type === 'admin') {
+            if (req.session.user.role === 'admin') {
 
                 const member = await userModel.findById({ _id: req.params.id })
-                
+
                 if (member?.shop === req.session.user.shop) {
 
                     !member.squads?.includes(req.body.squad) && member.squads?.push(req.body.squad)
@@ -76,8 +74,8 @@ const groupAdd = async (req, res) => {
 const groupRemove = async (req, res) => {
     try {
         if (req.session.user) {
-            
-            if (req.session.user.type === 'admin') {
+
+            if (req.session.user.role === 'admin') {
 
                 const member = await userModel.findById({ _id: req.params.id })
                 if (member?.shop === req.session.user.shop) {

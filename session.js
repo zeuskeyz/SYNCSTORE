@@ -3,7 +3,7 @@ const session_store = require('connect-mongodb-session')(session);
 
 const timeOut = 1000*60*5;
 
-const store = new session_store(
+const storage = new session_store(
   {
     uri: process.env.DB_URI,
     collection: 'sessions',
@@ -12,11 +12,14 @@ const store = new session_store(
 )
 
 const sessionData = session({
-    secret : process.env.SECRET,
+    key:'syncstore',
+    secret:process.env.SECRET,
+    resave:false,
     saveUninitialized: false,
-    resave: false,
-    cookie:{ maxAge: timeOut},
-    store: store
+    store: storage, 
+    cookie:{
+        expires: timeOut
+    }
 })
 
 module.exports = sessionData;
