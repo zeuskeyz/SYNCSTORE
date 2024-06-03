@@ -3,6 +3,7 @@ const { squadModel, userModel } = require("../database_files/models")
 //CREATES A SQUAD
 const createSquad = async (req, res) => {
     try {
+
         if (req.session.user && req.session.user.role === 'admin') {
 
             const check = await squadModel.find({$and:[{ name: req.body.name }, { shop: req.body.shop }]}) // CHECKS IF A SIMILAR SQUAD EXISTS IN DB
@@ -11,13 +12,13 @@ const createSquad = async (req, res) => {
 
                 const newSquad = new squadModel(req.body)
                 await newSquad.save()
-                res.send(`created squad : ${newSquad.name}`)
+                res.send({note: `created squad : ${newSquad.name}`})
 
-            } else res.send('squad already exists')
+            } else res.send({note: 'squad already exists'})
 
-        } else res.send('login error')
+        } else res.send({note:'login error'})
 
-    } catch (error) { res.send(error.message) }
+    } catch (error) { res.send({note: error.message})}
 }
 
 //RENDERS ALL SQUADS

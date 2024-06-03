@@ -4,25 +4,35 @@ const { userModel } = require("../database_files/models");
 
 //LANDING PAGE
 const landingPage = async (req, res) => {
-    res.send('Welcome Home!')
+    try {
+        if (req.session.user) {
+            const { username, role, shop, valid } = req.session.user
+            res.send(req.session.user)
+
+        } else (res.send({ valid: false }))
+    } catch (error) { res.send(error.message) }
 }
 
 //CREATES A USER
 const createUser = async (req, res) => {
     try {
-        //CHECK IF USER EXISTS
-        const exists = await userModel.find({ $or: [{ username: req.body.username }, { email: req.body.email }] })
+        //CHECK IF PASSWORDS MATCH
+        if (req.body.password === req.body.repeat) {
+            //CHECK IF USER EXISTS
+            const exists = await userModel.find({ $or: [{ username: req.body.username }, { email: req.body.email }] })
 
-        if (!exists.length) {
+            if (!exists.length) {
 
-            const hashedPass = await bcrypt.hash(req.body.password, 13) //HASH PASSWORD
-            const newUser = new userModel({ ...req.body, password: hashedPass })//CREATE A NEW USER INCLUDING THE HASHED PASSWORD
-            await newUser.save(); //SAVE USER TO DATABASE
-            res.send(`created user : ${newUser._id}`) //RESPONSE IF USER IS CREATED
+                const hashedPass = await bcrypt.hash(req.body.password, 13) //HASH PASSWORD
+                const newUser = new userModel({ ...req.body, password: hashedPass })//CREATE A NEW USER INCLUDING THE HASHED PASSWORD
+                await newUser.save(); //SAVE USER TO DATABASE
+                res.send({ note: `created user successfully` }) //RESPONSE IF USER IS CREATED
 
-        } else res.send('please choose another username/email') //RESPONSE IF USER DETAILS ALREADY EXISTS
+            } else res.send({ note: 'please choose another username/email' }) //RESPONSE IF USER DETAILS ALREADY EXISTS
 
-    } catch (error) { res.send(error.message) } //FEEDBACK IF USER CREATION PROCESS FAILS TO START
+        } else { res.send({ note: 'passwords are different' }) }
+
+    } catch (error) { res.send({ note: error.message }) } //FEEDBACK IF USER CREATION PROCESS FAILS TO START
 }
 
 //READS USERMODEL TO ALLOW LOGIN
@@ -35,9 +45,9 @@ const signIn = async (req, res) => {
 
             if (loginAuth) {
 
-                delete exists._doc.password; delete exists._doc.createdAt; delete exists._doc.updatedAt; //REMOVES THE PASSWORD FROM USER OBJECT
-                req.session.user = exists._doc; req.session.valid = true; //MODIFIES THE SESSION OBJECT
-                res.send({ user: req.session.user, valid:req.session.valid, note: `Welcome back ${req.body.username}` })
+                const { username, email, shop, role, squads } = exists
+                req.session.user = { username, email, shop, role }; req.session.valid = true; //MODIFIES THE SESSION OBJECT
+                res.send({ authUser: req.session.user, valid: req.session.valid, note: `Welcome back ${req.body.username}` })
 
             } else res.send({ note: 'invalid password' }) //FEEDBACK IF PASSWORD IS INVALID
 
@@ -92,6 +102,64 @@ const groupRemove = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
+//USER EDITTING
+const getEdit = async (req, res) => {
+    try {
+
+        if (req.session.user && req.session.user.role === 'admin') {
+
+            const editable = await userModel.findOne({ $and: [{ _id: req.params.id }, { shop: req.session.user.shop }] })
+            const { username, email, shop, role } = editable
+            res.send({ username, email, shop, role })
+
+        } else { res.send({ valid: false }) }
+
+    } catch (error) { res.send(error.message) }
+}
+
+//RENDERS ALL USERS
+const allUsers = async (req, res) => {
+
+    try {
+        if (req.session.user && req.session.user.role === 'admin') {
+
+            const users = await userModel.find()
+            res.send(users)
+
+        } else res.send({ valid: false })
+
+    } catch (error) { res.send(error.message) }
+}
+
+//RETURNS USER TO BE DELETED
+const deleteUser = async (req, res) => {
+    try {
+        if (req.session.user) {
+
+            const deletedUser = await userModel.findById({ _id: req.params.id })
+
+            if (deletedUser.shop === req.session.user.shop) {
+
+                const { username, email, role, shop } = deletedUser
+                res.send({ username, role, shop, email })
+            }
+
+        } else res.send('not logged in')
+
+    } catch (error) { res.send(error.message) }
+}
+
+//DELETES A USER
+const deleted = async (req, res) => {
+
+    if (req.session.user) {
+        const deleted = await userModel.findByIdAndDelete({ _id: req.params.id })
+        console.log(deleted)
+        res.send(`deleted successfully`)
+    } else { res.send('log in') }
+
+}
+
 //FACILITATES USER LOGOUT
 const logOut = async (req, res) => {
     try {
@@ -102,4 +170,16 @@ const logOut = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
-module.exports = { createUser, landingPage, signIn, logOut, groupAdd, groupRemove }
+//MAKES ALL FUNCTIONS IN THIS FILE ACCESSIBLE FROM WITHOUT
+module.exports = { 
+    createUser, 
+    landingPage, 
+    signIn, 
+    logOut, 
+    groupAdd, 
+    groupRemove, 
+    allUsers, 
+    getEdit, 
+    deleteUser, 
+    deleted 
+}
