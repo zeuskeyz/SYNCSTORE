@@ -12,10 +12,9 @@ router.post('/', signIn) //USER LOGIN PATH
 router.post('/new-user', createUser) //USER CREATION PATH
 router.get('/all-users', allUsers) //USERS READ PATH
 router.get('/user-logout', logOut) //USER LOGOUT PATH 
-router.get('/delete-user/:id', deleteUser) //USER DELETION PATH 
-router.post('/delete-user/:id', deleted) //USER DELETED PATH 
-router.post('/add-squads/:id', groupAdd) //ADD SQUADS TO USER PROFILE
-router.get('/edit-user/:id', getEdit) //GETS USER TO BE EDITTED
+router.post('/user/:id/delete', deleted) //USER DELETED PATH 
+router.post('/user/:id/add-squads/', groupAdd) //ADD SQUADS TO USER PROFILE
+router.get('/user/:id/edit', getEdit) //GETS USER TO BE EDITTED
 router.post('/remove-squads/:id', groupRemove) //REMOVE SQUADS TO USER PROFILE
 
 //TASK PATHS
