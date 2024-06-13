@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { createUser, landingPage, signIn, logOut, groupAdd, groupRemove, allUsers, getEdit, deleteUser, deleted } = require('./user_controllers');
+const { createUser, landingPage, signIn, logOut, groupAdd, groupRemove, allUsers, getEdit, deleted, getAUser, potentialSquads } = require('./user_controllers');
 const { createAsk, openTasks, pickedTasks, closedTasks, pickTask, closeTask, openAsks, pickedAsks, closedAsks } = require('./task_controllers');
 const { createSquad, allSquads, deleteSquad } = require('./squad_controllers');
 const router = Router();
@@ -12,8 +12,10 @@ router.post('/', signIn) //USER LOGIN PATH
 router.post('/new-user', createUser) //USER CREATION PATH
 router.get('/all-users', allUsers) //USERS READ PATH
 router.get('/user-logout', logOut) //USER LOGOUT PATH 
-router.post('/user/:id/delete', deleted) //USER DELETED PATH 
-router.post('/user/:id/add-squads/', groupAdd) //ADD SQUADS TO USER PROFILE
+router.get('/user/:id', getAUser) //ONE USER READ PATH 
+router.post('/user/:id', deleted) //USER DELETED PATH 
+router.get('/user/:id/add-squad', potentialSquads) //ADD SQUADS TO USER PROFILE
+router.post('/user/:id/add-squad', groupAdd) //ADD SQUADS TO USER PROFILE
 router.get('/user/:id/edit', getEdit) //GETS USER TO BE EDITTED
 router.post('/remove-squads/:id', groupRemove) //REMOVE SQUADS TO USER PROFILE
 

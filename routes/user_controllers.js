@@ -1,6 +1,6 @@
 const session = require('express-session')
 const bcrypt = require('bcrypt')
-const { userModel } = require("../database_files/models");
+const { userModel, squadModel } = require("../database_files/models");
 
 //LANDING PAGE
 const landingPage = async (req, res) => {
@@ -54,6 +54,30 @@ const signIn = async (req, res) => {
         } else { res.send({ note: 'invalid username/email' }) } //FRESPONSE IF USERNAME IS INVALID
 
     } catch (error) { res.send({ note: error }); console.log(error) } //FEEDBACK IF USER LOGIN PROCESS FAILS TO START
+}
+
+// GETS ALL THE SQUADS A USER DOESNT BELONG TO 
+const potentialSquads = async (req, res) => {
+    try {
+        if (req.session.user) {
+
+            if (req.session.user.role === 'admin') {
+
+                const member = await userModel.findById({ _id: req.params.id })
+                const allSquads = await squadModel.find()
+
+                if (member?.shop === req.session.user.shop) {
+                    const missingSquads = []
+                    allSquads.forEach(squad => !member.squads?.includes(squad) && missingSquads?.push(squad))
+                    res.send(missingSquads)
+
+                } else { res.send("user from different shop") }
+
+            } else { res.send('login as admin first') }
+
+        } else { res.send('session expired: login again') }
+
+    } catch (error) { res.send(error.message) }
 }
 
 // ADDS A SQUAD TO USER 
@@ -132,16 +156,17 @@ const allUsers = async (req, res) => {
 }
 
 //RETURNS USER TO BE DELETED
-const deleteUser = async (req, res) => {
+const getAUser = async (req, res) => {
     try {
         if (req.session.user) {
 
-            const deletedUser = await userModel.findById({ _id: req.params.id })
+            const managedUser = await userModel.findById({ _id: req.params.id })
 
-            if (deletedUser.shop === req.session.user.shop) {
+            if (managedUser.shop === req.session.user.shop) {
 
-                const { username, email, role, shop } = deletedUser
+                const { username, email, role, shop } = managedUser
                 res.send({ username, role, shop, email })
+                
             }
 
         } else res.send('not logged in')
@@ -155,7 +180,7 @@ const deleted = async (req, res) => {
     if (req.session.user) {
         const deleted = await userModel.findByIdAndDelete({ _id: req.params.id })
         console.log(deleted)
-        res.send(`deleted successfully`)
+        res.send(`user deleted successfully`)
     } else { res.send('log in') }
 
 }
@@ -175,11 +200,12 @@ module.exports = {
     createUser, 
     landingPage, 
     signIn, 
-    logOut, 
+    logOut,
+    potentialSquads, 
     groupAdd, 
     groupRemove, 
     allUsers, 
     getEdit, 
-    deleteUser, 
+    getAUser, 
     deleted 
 }
