@@ -6,7 +6,7 @@ const { userModel, squadModel } = require("../database_files/models");
 const landingPage = async (req, res) => {
     try {
         if (req.session.user) {
-            const { username, role, shop, valid } = req.session.user
+            const { username, role, shop, valid, squads} = req.session.user
             res.send(req.session.user)
 
         } else (res.send({ valid: false }))
@@ -67,8 +67,9 @@ const potentialSquads = async (req, res) => {
                 const allSquads = await squadModel.find()
 
                 if (member?.shop === req.session.user.shop) {
+
                     const missingSquads = []
-                    allSquads.forEach(squad => !member.squads?.includes(squad) && missingSquads?.push(squad))
+                    await allSquads.forEach(squad => !member.squads.includes(squad.name) && missingSquads.push(squad))
                     res.send(missingSquads)
 
                 } else { res.send("user from different shop") }
@@ -79,6 +80,7 @@ const potentialSquads = async (req, res) => {
 
     } catch (error) { res.send(error.message) }
 }
+
 
 // ADDS A SQUAD TO USER 
 const groupAdd = async (req, res) => {
@@ -104,6 +106,7 @@ const groupAdd = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
+
 // REMOVES A SQUAD FROM USER 
 const groupRemove = async (req, res) => {
     try {
@@ -126,6 +129,7 @@ const groupRemove = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
+
 //USER EDITTING
 const getEdit = async (req, res) => {
     try {
@@ -141,6 +145,7 @@ const getEdit = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
+
 //RENDERS ALL USERS
 const allUsers = async (req, res) => {
 
@@ -155,6 +160,7 @@ const allUsers = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
+
 //RETURNS USER TO BE DELETED
 const getAUser = async (req, res) => {
     try {
@@ -164,8 +170,8 @@ const getAUser = async (req, res) => {
 
             if (managedUser.shop === req.session.user.shop) {
 
-                const { username, email, role, shop } = managedUser
-                res.send({ username, role, shop, email })
+                const { username, email, role, shop, squads } = managedUser
+                res.send({ username, role, shop, email, squads})
                 
             }
 
@@ -173,6 +179,7 @@ const getAUser = async (req, res) => {
 
     } catch (error) { res.send(error.message) }
 }
+
 
 //DELETES A USER
 const deleted = async (req, res) => {
@@ -207,5 +214,5 @@ module.exports = {
     allUsers, 
     getEdit, 
     getAUser, 
-    deleted 
+    deleted,
 }
