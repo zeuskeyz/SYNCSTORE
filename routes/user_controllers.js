@@ -116,10 +116,10 @@ const groupRemove = async (req, res) => {
 
                 const member = await userModel.findById({ _id: req.params.id })
                 if (member?.shop === req.session.user.shop) {
-
+                    let delt = req.body.name
                     member.squads?.splice((member.squads?.indexOf(req.body.squad)), 1)
                     await member.save()
-                    res.send(`${member.username} removed from ${req.body.squad} squad`)
+                    res.send(`${member.username} removed from ${delt} squad`)
 
                 } else { res.send('user from different shop') }
 

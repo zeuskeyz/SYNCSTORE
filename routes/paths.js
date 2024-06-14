@@ -17,7 +17,7 @@ router.post('/user/:id', deleted) //USER DELETED PATH
 router.get('/user/:id/add-squad', potentialSquads) //ADD SQUADS TO USER PROFILE
 router.post('/user/:id/add-squad', groupAdd) //ADD SQUADS TO USER PROFILE
 router.get('/user/:id/edit', getEdit) //GETS USER TO BE EDITTED
-router.post('/remove-squads/:id', groupRemove) //REMOVE SQUADS TO USER PROFILE
+router.delete('/user/:id/delete-squad', groupRemove) //REMOVE SQUADS TO USER PROFILE
 
 //TASK PATHS
 router.post('/new-ask', createAsk) //REQUEST CREATION PATH
