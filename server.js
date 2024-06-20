@@ -14,7 +14,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(sessionData)
 app.use('/', routing)
 
-app.listen(process.env.PORT,  () => {
-    connectDB()
+app.listen(process.env.PORT,  async () => {
+    await connectDB()
     console.log('SERVER STARTED')
 })

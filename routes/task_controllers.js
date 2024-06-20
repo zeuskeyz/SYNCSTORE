@@ -9,7 +9,7 @@ const createAsk = async (req, res) => {
 
             const createAsk = new taskModel(req.body)
             await createAsk.save()
-            res.send(`successfully created task : ${createAsk._id}`)
+            res.send(`successfully created task`)
 
         } else { res.send('login first!') }
 
@@ -19,7 +19,6 @@ const createAsk = async (req, res) => {
 //RENDERS ALL OPEN REQUESTS
 const openAsks = async (req, res) => {
     try {
-
         if (req.session.user) {
             const { username } = req.session.user
 
@@ -29,22 +28,36 @@ const openAsks = async (req, res) => {
                     { status: 'open' }
                 ]
             })
-
             res.send(asksList)
-
         }
+    } catch (error) { res.send(error.message) }
+}
+//DELETE REQUEST
+const deleteAsk = async (req, res) => {
+    try {
+        if (req.session.user) {
+            const { username } = req.session.user
 
+            const asksList = await taskModel.findOneAndDelete({
+                $and: [
+                    { _id: req.body.id },
+                    { creator: username },
+                    { status: 'open' }
+                ]
+            })
+            res.send('request deleted')
+        }
     } catch (error) { res.send(error.message) }
 }
 
 //RENDERS ALL OPEN TASKS
 const openTasks = async (req, res) => {
-    let tasksList = []
 
     try {
+        //let tasksList = []
 
         if (req.session.user) {
-            tasksList = await taskModel.find({
+            const tasksList = await taskModel.find({
 
                 $and: [
                     { shop: req.session.user.shop },
@@ -52,9 +65,8 @@ const openTasks = async (req, res) => {
                     { audience: { $in: req.session.user.squads } }
                 ]
             })
-
             res.send(tasksList)
-        } else { res.send ( {valid: false }) }
+        } else { res.send({ valid: false }) }
 
     } catch (error) { res.send(error.message) }
 }
@@ -66,7 +78,8 @@ const pickTask = async (req, res) => {
         if (req.session.user) {
             const { shop, squads } = req.session.user
 
-            const picked = await taskModel.findById({ _id: req.params.id })
+            const picked = await taskModel.findById({ _id: req.body.id })
+            console.log(picked)
 
             if (picked.shop === shop && squads.includes(picked.audience) && picked.status === 'open') {
 
@@ -121,6 +134,26 @@ const pickedTasks = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
+//FETCHES TASK BEING COMPLETED
+const closingTask = async (req, res) => {
+    try {
+
+        if (req.session.user) {
+
+            const { username, shop } = req.session.user
+            const closed = await taskModel.findById({ _id: req.params.id })
+
+            if (closed.shop === shop && closed.picklist?.includes(username) && closed.status === 'in progress') {
+
+                res.send(closed)
+
+            } else { res.send('task in wrong shop/audience/status') }
+
+        } else { res.send('login first') }
+
+    } catch (error) { res.send(error.message) }
+
+}
 //FACILITATES COMPLETING A TASK
 const closeTask = async (req, res) => {
     try {
@@ -190,7 +223,7 @@ const closedTasks = async (req, res) => {
     } catch (error) { res.send(error.message) }
 }
 
-module.exports = { createAsk, openAsks, openTasks, pickTask, pickedAsks, pickedTasks, closeTask, closedAsks, closedTasks }
+module.exports = { createAsk, openAsks, openTasks, pickTask, pickedAsks, pickedTasks, closingTask, closeTask, closedAsks, closedTasks, deleteAsk }
 
 
 

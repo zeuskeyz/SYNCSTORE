@@ -6,7 +6,7 @@ const { userModel, squadModel } = require("../database_files/models");
 const landingPage = async (req, res) => {
     try {
         if (req.session.user) {
-            const { username, role, shop, valid, squads} = req.session.user
+            const { username, email, role, shop, valid, squads } = req.session.user
             res.send(req.session.user)
 
         } else (res.send({ valid: false }))
@@ -46,7 +46,7 @@ const signIn = async (req, res) => {
             if (loginAuth) {
 
                 const { username, email, shop, role, squads } = exists
-                req.session.user = { username, email, shop, role }; req.session.valid = true; //MODIFIES THE SESSION OBJECT
+                req.session.user = { username, email, shop, role, squads }; req.session.valid = true; //MODIFIES THE SESSION OBJECT
                 res.send({ authUser: req.session.user, valid: req.session.valid, note: `Welcome back ${req.body.username}` })
 
             } else res.send({ note: 'invalid password' }) //FEEDBACK IF PASSWORD IS INVALID
@@ -116,10 +116,9 @@ const groupRemove = async (req, res) => {
 
                 const member = await userModel.findById({ _id: req.params.id })
                 if (member?.shop === req.session.user.shop) {
-                    let delt = req.body.name
                     member.squads?.splice((member.squads?.indexOf(req.body.squad)), 1)
                     await member.save()
-                    res.send(`${member.username} removed from ${delt} squad`)
+                    res.send(`${member.username} removed from squad`)
 
                 } else { res.send('user from different shop') }
 
@@ -171,8 +170,8 @@ const getAUser = async (req, res) => {
             if (managedUser.shop === req.session.user.shop) {
 
                 const { username, email, role, shop, squads } = managedUser
-                res.send({ username, role, shop, email, squads})
-                
+                res.send({ username, role, shop, email, squads })
+
             }
 
         } else res.send('not logged in')
@@ -184,11 +183,15 @@ const getAUser = async (req, res) => {
 //DELETES A USER
 const deleted = async (req, res) => {
 
-    if (req.session.user) {
-        const deleted = await userModel.findByIdAndDelete({ _id: req.params.id })
-        console.log(deleted)
-        res.send(`user deleted successfully`)
-    } else { res.send('log in') }
+    try {
+        if (req.session.user) {
+
+            const deleted = await userModel.findByIdAndDelete({ _id: req.params.id })
+            res.send(`user deleted successfully`)
+            
+        } else { res.send('log in') }
+
+    } catch (error) { res.send(error.message) }
 
 }
 
@@ -203,16 +206,16 @@ const logOut = async (req, res) => {
 }
 
 //MAKES ALL FUNCTIONS IN THIS FILE ACCESSIBLE FROM WITHOUT
-module.exports = { 
-    createUser, 
-    landingPage, 
-    signIn, 
+module.exports = {
+    createUser,
+    landingPage,
+    signIn,
     logOut,
-    potentialSquads, 
-    groupAdd, 
-    groupRemove, 
-    allUsers, 
-    getEdit, 
-    getAUser, 
+    potentialSquads,
+    groupAdd,
+    groupRemove,
+    allUsers,
+    getEdit,
+    getAUser,
     deleted,
 }

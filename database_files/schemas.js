@@ -14,7 +14,7 @@ const user = {
 const task = {
 
     name: { type: String, required: true, lowercase: true },
-    summary: { type: String, required: true },
+    details: { type: String, required: true },
     status: { type: String, lowercase: true, default: 'open' },
     shop: { type: String, required: true, uppercase: true },
     creator: { type: String, required: true, lowercase: true },
@@ -34,3 +34,5 @@ const squad = {
 }
 
 module.exports = { user, task, squad }
+
+

@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { createUser, landingPage, signIn, logOut, groupAdd, groupRemove, allUsers, getEdit, deleted, getAUser, potentialSquads } = require('./user_controllers');
-const { createAsk, openTasks, pickedTasks, closedTasks, pickTask, closeTask, openAsks, pickedAsks, closedAsks } = require('./task_controllers');
+const { createAsk, openTasks, pickedTasks, closedTasks, pickTask, closeTask, openAsks, pickedAsks, closedAsks, closingTask, deleteAsk } = require('./task_controllers');
 const { createSquad, allSquads, deleteSquad } = require('./squad_controllers');
 const router = Router();
 
@@ -22,12 +22,15 @@ router.delete('/user/:id/delete-squad', groupRemove) //REMOVE SQUADS TO USER PRO
 //TASK PATHS
 router.post('/new-ask', createAsk) //REQUEST CREATION PATH
 router.get('/open-tasks', openTasks) //OPEN TASKS PATH
-router.get('/open-asks', openAsks) //OPEN ASKS PATH
-router.post('/pick-task/:id', pickTask) //PICKING TASKS PATH 
-router.get('/picked-tasks', pickedTasks) //PICKED TASKS PATH
-router.get('/picked-asks', pickedAsks) //PICKED ASKS PATH
+router.post('/open-tasks', pickTask) //PICKING TASKS PATH 
+router.get('/picked-tasks/', pickedTasks) //PICKED TASKS PATH
+router.get('/close-task/:id', closingTask) //CLOSING TASKS PATH 
 router.post('/close-task/:id', closeTask) //CLOSING TASKS PATH 
 router.get('/closed-tasks', closedTasks) //COMPLETED TASKS PATH 
+
+router.get('/open-asks', openAsks) //OPEN ASKS PATH
+router.post('/open-asks', deleteAsk) //OPEN ASKS PATH
+router.get('/picked-asks', pickedAsks) //PICKED ASKS PATH
 router.get('/closed-asks', closedAsks) //COMPLETED ASKS PATH 
 
 //SQUAD PATHS
